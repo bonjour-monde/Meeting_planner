@@ -9,9 +9,17 @@ The API provides a single endpoint to book a room based on the meeting type, num
 ### Available Endpoint
 
 **Book a room**
+```declarative
+curl -X POST "http://localhost:8080/book" \
+     -H "Content-Type: application/json" \
+     -d '{
+           "meetingType": "VC",
+           "participants": 5,
+           "date": "2025-02-10",
+           "time": 3
+         }
 ```
-POST http://localhost:8080/book?meetingType=VC&participants=20&date=2025-02-05&time=1
-```
+
 #### Parameters:
 | Parameter    | Type   | Description                                |
 |--------------|--------|--------------------------------------------|

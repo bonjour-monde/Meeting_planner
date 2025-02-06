@@ -1,5 +1,6 @@
 package com.project.planner;
 
+import com.project.planner.dto.BookingResponse;
 import com.project.planner.exception.RoomNotFoundException;
 import com.project.planner.exception.UnboundTimeException;
 import com.project.planner.model.EquipmentType;
@@ -24,6 +25,7 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+
 @ExtendWith(MockitoExtension.class)
 public class BookingServiceTest {
 
@@ -39,13 +41,21 @@ public class BookingServiceTest {
     @Test
     void shouldBookRoomWhenAvailable() {
         Room room = new Room("Room A", 10, Set.of(EquipmentType.SCREEN));
+        LocalDate date = LocalDate.of(2025, 2, 10);
+        int time = 3;
+        Set<EquipmentType> missingEquipments = Set.of();
+
         when(roomService.findBestRoom(any(), anyInt(), any(), anyInt()))
                 .thenReturn(Optional.of(room));
 
-        Optional<String> result = bookingService.bookRoom(5, LocalDate.of(2025, 2, 10), 3, MeetingType.VC);
+        BookingResponse result = bookingService.bookRoom(5, date, time, MeetingType.VC);
 
-        assertTrue(result.isPresent());
-        assertEquals("Room A", result.get());
+        assertNotNull(result);
+        assertEquals("Room A", result.getRoomName());
+        assertEquals(date, result.getDate());
+        assertEquals(time, result.getTime());
+        assertEquals(missingEquipments, result.getMissingEquipments());
+
         verify(bookingRepository, times(1)).save(any());
     }
 
@@ -53,7 +63,6 @@ public class BookingServiceTest {
     void shouldThrowRoomNotFoundExceptionAndNotBookRoomWhenNoneAvailable() {
         when(roomService.findBestRoom(any(), anyInt(), any(), anyInt()))
                 .thenReturn(Optional.empty());
-
 
         assertThrows(RoomNotFoundException.class,
                 () -> bookingService.bookRoom(5, LocalDate.of(2025, 2, 10), 3, MeetingType.VC));

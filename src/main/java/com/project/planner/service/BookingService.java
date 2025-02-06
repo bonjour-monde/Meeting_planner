@@ -1,5 +1,6 @@
 package com.project.planner.service;
 
+import com.project.planner.dto.BookingResponse;
 import com.project.planner.exception.RoomNotFoundException;
 import com.project.planner.exception.UnboundTimeException;
 import com.project.planner.model.Booking;
@@ -27,24 +28,20 @@ public class BookingService {
 
 
     @Transactional
-    public Optional<String> bookRoom(int participants, LocalDate date, int time, MeetingType meetingType) {
-
+    public BookingResponse bookRoom(int participants, LocalDate date, int time, MeetingType meetingType) {
         if (time < 0 || time > 11) {
             throw new UnboundTimeException("Time must be between 0 and 11");
         }
 
-        var room = roomService.findBestRoom(meetingType, participants, date, time);
+        var room = roomService.findBestRoom(meetingType, participants, date, time)
+                .orElseThrow(() -> new RoomNotFoundException("Room not found"));
 
-        if (room.isPresent()) {
+        Set<EquipmentType> missingEquipments = new HashSet<>(meetingType.getNecessaryEquipments());
+        missingEquipments.removeAll(room.getEquipments());
 
-            Set<EquipmentType> difference = new HashSet<>(meetingType.getNecessaryEquipments());
-            difference.removeAll(room.get().getEquipments());
+        Booking booking = new Booking(room, date, time, missingEquipments);
+        booking = bookingRepository.save(booking);
 
-            bookingRepository.save(new Booking(room.get(), date, time, difference));
-
-            return room.map(Room::getName);
-        }
-
-        throw new RoomNotFoundException("Room not found");
+        return new BookingResponse(booking.getId(), room.getName(), date, time, missingEquipments);
     }
 }

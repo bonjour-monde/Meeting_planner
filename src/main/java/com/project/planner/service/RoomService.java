@@ -27,10 +27,6 @@ public class RoomService {
 
     public Optional<Room> findBestRoom(MeetingType meetingType, int participants, LocalDate date, int time) {
 
-        if (time < 0 || time > 11) {
-            throw new UnboundTimeException("Time must be between 0 and 11");
-        }
-
         List<Room> possibleRooms = roomRepository.findAll().stream()
                 .filter(room -> room.getCapacity() >= participants)
                 .filter(room -> isRoomAvailable(room, date, time))
@@ -59,6 +55,7 @@ public class RoomService {
                     .filter(movableEquipment -> isMovableEquipmentAvailable(movableEquipment, existingBookings))
                     .map(MovableEquipment::getName)
                     .collect(Collectors.toSet());
+
             bestRoom = possibleRooms.stream()
                     .filter(room -> {
                         var intersection = new HashSet<>(availableMoveableEquipments);
