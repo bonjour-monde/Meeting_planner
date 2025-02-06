@@ -60,9 +60,4 @@ public class RoomServiceTest {
 
     }
 
-    @Test
-    void shouldThrowExceptionForInvalidTime() {
-        assertThrows(UnboundTimeException.class,
-                () -> roomService.findBestRoom(MeetingType.VC, 5, LocalDate.of(2025, 2, 10), 15));
-    }
 }

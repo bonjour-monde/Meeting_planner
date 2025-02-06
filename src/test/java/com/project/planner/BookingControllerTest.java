@@ -1,6 +1,7 @@
 package com.project.planner;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.project.planner.controller.BookingController;
 import com.project.planner.dto.BookingRequest;
 import com.project.planner.dto.BookingResponse;
@@ -35,6 +36,8 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+
+
 @SpringBootTest
 @AutoConfigureMockMvc
 @ExtendWith(MockitoExtension.class)
@@ -43,18 +46,13 @@ public class BookingControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @InjectMocks
-    private BookingController bookingController;
-
-    @Mock
+    @MockBean
     private BookingService bookingService;
 
-    private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-    }
+    private static final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
+
+
 
     @Test
     void shouldReturnBookingResponseWhenBookingSuccessful() throws Exception {

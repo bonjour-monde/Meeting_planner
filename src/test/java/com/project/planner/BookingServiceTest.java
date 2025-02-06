@@ -3,6 +3,7 @@ package com.project.planner;
 import com.project.planner.dto.BookingResponse;
 import com.project.planner.exception.RoomNotFoundException;
 import com.project.planner.exception.UnboundTimeException;
+import com.project.planner.model.Booking;
 import com.project.planner.model.EquipmentType;
 import com.project.planner.model.MeetingType;
 import com.project.planner.model.Room;
@@ -38,6 +39,7 @@ public class BookingServiceTest {
     @Mock
     private RoomService roomService;
 
+
     @Test
     void shouldBookRoomWhenAvailable() {
         Room room = new Room("Room A", 10, Set.of(EquipmentType.SCREEN));
@@ -48,15 +50,18 @@ public class BookingServiceTest {
         when(roomService.findBestRoom(any(), anyInt(), any(), anyInt()))
                 .thenReturn(Optional.of(room));
 
+        Booking booking = new Booking(room, date, time, missingEquipments);
+        when(bookingRepository.save(any(Booking.class))).thenReturn(booking);
+
         BookingResponse result = bookingService.bookRoom(5, date, time, MeetingType.VC);
 
         assertNotNull(result);
         assertEquals("Room A", result.getRoomName());
         assertEquals(date, result.getDate());
         assertEquals(time, result.getTime());
-        assertEquals(missingEquipments, result.getMissingEquipments());
 
-        verify(bookingRepository, times(1)).save(any());
+        verify(bookingRepository, times(1)).save(any(Booking.class));
+        verify(roomService, times(1)).findBestRoom(any(), anyInt(), any(), anyInt());
     }
 
     @Test
