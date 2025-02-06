@@ -64,10 +64,6 @@ public class RoomService {
                         var intersection = new HashSet<>(availableMoveableEquipments);
                         intersection.addAll(room.getEquipments());
 
-                        System.out.println("111111111   " + availableMoveableEquipments);
-                        System.out.println("2222222222   " + room.getEquipments());
-                        System.out.println("333333333   " + intersection);
-
                         return meetingType.isMeetingPossible(intersection, 0);
                     }).findAny();
         }
@@ -78,19 +74,11 @@ public class RoomService {
 
     private boolean isMovableEquipmentAvailable(MovableEquipment equipment, List<Booking> existingBookings) {
 
-        if (equipment.getName().equals(EquipmentType.WHITEBOARD)) {
-            System.out.println("fjdkjkdlf");
-        }
-
-
         var countEquipment = existingBookings.stream()
                 .flatMap(booking -> booking.getMovableEquipments().stream())
                 .filter(eq -> eq.equals(equipment.getName()))
                 .count();
 
-        if (equipment.getName().equals(EquipmentType.WHITEBOARD)) {
-            System.out.println("eee " + countEquipment);
-        }
         return equipment.getAvailableQuantity() > countEquipment;
     }
 
